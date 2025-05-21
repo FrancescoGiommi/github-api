@@ -1,9 +1,8 @@
-import { useRef } from "react";
-
-import HomePage from "../pages/Homepage";
+import { useState } from "react";
 
 export default function Navbar() {
-  const inputRef = useRef();
+  const [data, setData] = useState([]);
+  const [username, setUsername] = useState("");
 
   const fetchApi = async (username) => {
     try {
@@ -11,6 +10,7 @@ export default function Navbar() {
         `https://api.github.com/users/${username}/repos`
       );
       const data = await response.json();
+      setData(data);
       console.log(data);
     } catch (error) {
       console.error("Errore nel fetch dei dati:", error);
@@ -19,10 +19,7 @@ export default function Navbar() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const inputValue = inputRef.current.value.trim();
-    if (inputValue) {
-      fetchApi(inputValue);
-    }
+    fetchApi(username);
   };
 
   return (
@@ -36,7 +33,8 @@ export default function Navbar() {
               type="search"
               placeholder="Search"
               aria-label="Search"
-              ref={inputRef}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
             />
             <button className="btn btn-outline-success" type="submit">
               Search
@@ -44,9 +42,14 @@ export default function Navbar() {
           </form>
         </div>
       </nav>
-      <div className="container">
-        <HomePage />
-      </div>
+
+      {data.map((repo) => (
+        <div className="container mt-5" key={repo.id}>
+          <ul>
+            <li>{repo.name}</li>
+          </ul>
+        </div>
+      ))}
     </>
   );
 }
