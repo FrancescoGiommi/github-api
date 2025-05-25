@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export default function Homepage() {
   // State che contiene i dati
@@ -18,6 +18,16 @@ export default function Homepage() {
 
   // State per il loader
   const [isLoading, setIsLoading] = useState(false);
+
+  function debounce(callback, delay) {
+    let timer;
+    return (value) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        callback(value);
+      }, delay);
+    };
+  }
 
   // Fetch per repository
   const fetchRepositories = async () => {
@@ -72,6 +82,14 @@ export default function Homepage() {
     setHasSearched(false);
   }, [query, searchType]);
 
+  // Debounce per la barra di ricerca
+  const debounceSearch = useCallback(
+    debounce((value) => {
+      setQuery(value);
+    }, 700),
+    []
+  );
+
   // Validazione della query
   const isQueryValid = query.trim().length >= 3;
 
@@ -88,8 +106,7 @@ export default function Homepage() {
                 type="search"
                 placeholder="Search"
                 aria-label="Search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => debounceSearch(e.target.value)}
               />
               {/* Validazione della query */}
               <p className={isQueryValid ? "text-success" : "text-danger"}>
