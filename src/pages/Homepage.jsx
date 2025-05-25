@@ -13,46 +13,67 @@ export default function Homepage() {
   // State per tracciare l'ultimo tipo di ricerca fatto
   const [lastSearchType, setLastSearchType] = useState("");
 
+  // State per tracciare se la ricerca è stata fatta
+  const [hasSearched, setHasSearched] = useState(false);
+
+  // State per il loader
+  const [isLoading, setIsLoading] = useState(false);
+
   // Fetch per repository
   const fetchRepositories = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch(
         `https://api.github.com/search/repositories?q=${query}`
       );
       const data = await response.json();
-      setData(data.items);
-      console.log(data.items);
+      setData(data.items || []);
     } catch (error) {
       console.error("Errore nel fetch dei dati:", error);
+      setData([]);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   // Fetch per utente
   const fetchUser = async () => {
+    setIsLoading(true);
     try {
       const response = await fetch(
         `https://api.github.com/users/${query}/repos`
       );
       const data = await response.json();
-      setData(data);
-      console.log(data);
+      setData(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Errore nel fetch dei dati:", error);
+      setData([]);
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  // Eseguo la fetch in base al tipo di ricerca
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setLastSearchType(searchType); // <-- salva il tipo della ricerca effettiva
+    if (!isQueryValid) return;
 
-    if (searchType === "User" && query) {
-      fetchUser(query);
-    } else if (searchType === "Repositories" && query) {
-      fetchRepositories(query);
+    setHasSearched(true); // Solo al click del bottone
+    setLastSearchType(searchType);
+
+    if (searchType === "User") {
+      fetchUser();
+    } else {
+      fetchRepositories();
     }
   };
+
+  useEffect(() => {
+    // Reset dei dati quando cambia la query o il tipo di ricerca
+    setHasSearched(false);
+  }, [query, searchType]);
+
+  // Validazione della query
+  const isQueryValid = query.trim().length >= 3;
 
   return (
     <>
@@ -61,14 +82,23 @@ export default function Homepage() {
         <div className="container-fluid">
           <a className="navbar-brand">GitHub API</a>
           <form className="d-flex" onSubmit={handleSubmit} role="search">
-            <input
-              className="form-control me-2"
-              type="search"
-              placeholder="Search"
-              aria-label="Search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
+            <div className="d-flex flex-column align-items-start me-3">
+              <input
+                className="form-control"
+                type="search"
+                placeholder="Search"
+                aria-label="Search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              {/* Validazione della query */}
+              <p className={isQueryValid ? "text-success" : "text-danger"}>
+                {isQueryValid
+                  ? "Ricerca valida"
+                  : "Inserisci almeno 3 caratteri"}
+              </p>
+            </div>
+
             {/* Bottone per la ricerca */}
             <button className="btn btn-outline-success" type="submit">
               Search
@@ -89,7 +119,9 @@ export default function Homepage() {
 
       <div className="container mt-5">
         <div className="row g-4">
-          {data.length > 0 &&
+          {isLoading ? (
+            <p className="text-center">Caricamento...</p>
+          ) : data.length > 0 ? (
             data.map((repo) => (
               <div
                 className="col-12 col-md-4 col-sm-6 col-lg-3 text-center"
@@ -101,7 +133,7 @@ export default function Homepage() {
                       <img
                         src={repo.owner.avatar_url}
                         alt={`Avatar di ${repo.owner.login}`}
-                        className="img-fluid rounded-circle mb-2 mx-auto avatar"
+                        className="img-fluid rounded-circle mb-2 mx-auto"
                         style={{ width: "50px", height: "50px" }}
                       />
                       <h2 className="card-title">{repo.name}</h2>
@@ -118,7 +150,7 @@ export default function Homepage() {
                       </p>
                       <p className="card-text">Forks: {repo.forks_count}</p>
                       <p>Visibilità: {repo.private ? "Privata" : "Pubblica"}</p>
-                      <a href={repo.html_url} className="btn btn-primary ">
+                      <a href={repo.html_url} className="btn btn-primary">
                         Vai al repository
                       </a>
                     </div>
@@ -129,7 +161,7 @@ export default function Homepage() {
                       <img
                         src={repo.owner.avatar_url}
                         alt={`Avatar di ${repo.owner.login}`}
-                        className="img-fluid rounded-circle mb-2 mx-auto avatar"
+                        className="img-fluid rounded-circle mb-2 mx-auto"
                         style={{ width: "50px", height: "50px" }}
                       />
                       <h2 className="card-title">{repo.name}</h2>
@@ -146,14 +178,22 @@ export default function Homepage() {
                       </p>
                       <p className="card-text">Forks: {repo.forks_count}</p>
                       <p>Visibilità: {repo.private ? "Privata" : "Pubblica"}</p>
-                      <a href={repo.html_url} className="btn btn-primary ">
+                      <a href={repo.html_url} className="btn btn-primary">
                         Vai al repository
                       </a>
                     </div>
                   </div>
                 )}
               </div>
-            ))}
+            ))
+          ) : (
+            hasSearched &&
+            isQueryValid && (
+              <p className="text-center text-danger mt-3 w-100">
+                Nessun risultato trovato per "{query}"
+              </p>
+            )
+          )}
         </div>
       </div>
     </>
