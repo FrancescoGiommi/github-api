@@ -57,7 +57,8 @@ export default function Homepage() {
     e.preventDefault();
     if (!isQueryValid) return;
 
-    setHasSearched(true); // Solo al click del bottone
+    // Solo al click del bottone
+    setHasSearched(true);
     setLastSearchType(searchType);
 
     if (searchType === "User") {
