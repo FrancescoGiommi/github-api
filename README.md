@@ -1,12 +1,45 @@
-# React + Vite
+ GitHub Api
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+GitHub Api è una web app realizzata in React che consente di cercare facilmente repository e utenti su GitHub sfruttando le API ufficiali.
 
-Currently, two official plugins are available:
+ Funzionalità principali:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+   Cerca repository in base a una parola chiave
 
-## Expanding the ESLint configuration
+   Cerca utenti GitHub e visualizza i loro repository
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+   Visualizza dettagli dei repository come:
+
+   - Nome
+
+   - Descrizione
+
+   - Linguaggio principale
+
+   - Numero di stelle 
+
+   - Numero di fork
+
+   - Stato di visibilità (pubblico o privato)
+
+   - Mostra l’avatar del proprietario del repository
+
+   - Link diretto alla pagina GitHub del repository
+
+ Come funziona:
+
+   1- Seleziona il tipo di ricerca (Repository o User)
+
+   2- Inserisci almeno 3 caratteri nel campo di ricerca
+
+   3- Premi il bottone per avviare la ricerca
+
+   4- Visualizza i risultati in modo ordinato e responsive
+
+ Tecnologie utilizzate:
+
+   - React + Hooks (useState, useEffect)
+
+   - Fetch API per le chiamate HTTP
+
+   - Bootstrap per uno stile rapido e responsivo
